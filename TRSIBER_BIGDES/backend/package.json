@@ -1,0 +1,22 @@
+{
+  "name": "trsiber-bigdes",
+  "version": "1.0.0",
+  "description": "TRSİBER BIGDES Uyum ve Denetim Sistemi",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+} 
