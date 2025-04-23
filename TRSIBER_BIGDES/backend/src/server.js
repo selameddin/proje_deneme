@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, '../../')));
 
 // Ana sayfayı yönlendir
 app.get('/', (req, res) => {
-    res.redirect('/pages/loginpage.html');
+    res.redirect('/pages/index.html');
 });
 
 // MySQL bağlantısı
