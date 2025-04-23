@@ -24,28 +24,34 @@ const connection = mysql.createConnection({
     database: process.env.DB_NAME || 'trsiber'
 });
 
-connection.connect((err) => {
-    if (err) {
-        console.error('MySQL bağlantı hatası:', err);
-        return;
-    }
-    console.log('MySQL veritabanına bağlandı');
-});
+// Veritabanı bağlantı yönetimi
+function handleDisconnect() {
+    connection.connect((err) => {
+        if (err) {
+            console.error('MySQL bağlantı hatası:', err);
+            setTimeout(handleDisconnect, 2000);
+            return;
+        }
+        console.log('MySQL veritabanına bağlandı');
+    });
 
-// Bağlantı hatası yönetimi
-connection.on('error', (err) => {
-    console.error('Veritabanı hatası:', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log('Veritabanı bağlantısı koptu, yeniden bağlanılıyor...');
-        connection.connect();
-    } else {
-        throw err;
-    }
-});
+    connection.on('error', (err) => {
+        console.error('MySQL bağlantı hatası:', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect();
+        } else {
+            throw err;
+        }
+    });
+}
+
+handleDisconnect();
 
 // Kullanıcı girişi
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
+    
+    console.log('Login denemesi:', { email }); // Şifreyi loglamıyoruz
 
     const sql = 'SELECT * FROM users WHERE email = ? AND password = ?';
     connection.query(sql, [email, password], (err, results) => {
@@ -56,11 +62,13 @@ app.post('/login', (req, res) => {
         }
 
         if (results.length === 0) {
+            console.log('Kullanıcı bulunamadı:', email);
             res.status(401).json({ error: 'Geçersiz email veya şifre' });
             return;
         }
 
         const user = results[0];
+        console.log('Başarılı giriş:', email);
         res.json({
             success: true,
             user: {
@@ -77,7 +85,7 @@ app.post('/login', (req, res) => {
 // Hata yönetimi middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ error: 'Sunucu hatası' });
+    res.status(500).json({ error: 'Sunucu hatası!' });
 });
 
 const PORT = process.env.PORT || 3000;
